@@ -87,4 +87,5 @@ ui = gr.Interface(
     description="Ask about workouts, health info, and more based on Sarah's (TruFit Movements) guide!"
 )
 
-ui.launch()
+port = int(os.environ.get("PORT", 8080))
+ui.launch(server_name="0.0.0.0", server_port=port)
