@@ -87,4 +87,4 @@ ui = gr.Interface(
     description="Ask about workouts, health info, and more based on Sarah's (TruFit Movements) guide!"
 )
 
-ui.launch(share=True)
+ui.launch()
