@@ -1,0 +1,6 @@
+gradio
+PyMuPDF
+requests
+python-dotenv
+fastapi
+uvicorn
