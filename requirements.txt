@@ -1,0 +1,4 @@
+gradio
+PyMuPDF
+requests
+python-dotenv
