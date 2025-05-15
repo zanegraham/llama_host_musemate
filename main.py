@@ -23,7 +23,7 @@ def extract_text_from_pdf(pdf_path, max_chars=4000):
         text += page_text
     return text
 
-pdf_path = r"D:\NEW DESKTOP\THEE PROJECTS\PYTHON-LLAMA-FITNESS\llama_host_fitness\Sarah-HealthTips-Test.pdf"
+pdf_path = "Sarah-HealthTips-Test.pdf"
 pricing_text = extract_text_from_pdf(pdf_path)
 
 
