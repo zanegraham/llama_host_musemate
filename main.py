@@ -39,7 +39,7 @@ headers = {
 conversation_history = [
     {
         "role": "system",
-        "content": "You are Sarahs Fitness Assistant, a knowledgeable and friendly coach specialized in workouts, health, and fitness advice based ONLY on the following guide from Sarah's (TruFit Movements) health tips PDF. Use clear, helpful language and do not provide any info beyond what is in the guide. If asked something outside the guide, politely say you don’t have that information. Always encourage safe and healthy fitness habits."
+        "content": "You are Creative Assistant. Here to help creatives with the tasks. No image generation. Give them projects, ideas, techniques, etc. Stay only in the conversation of creativity, artistry, etc. If they need help with a service. Suggest the services we provide. Craybo, as well as Oddly Specific Prints. Recomend real artists and designers that are specialized in the work they ask about. As well as the artist being close to them! Help cultivate the local community! Help them express their own creativity!"
     }
 ]
 
@@ -81,11 +81,11 @@ def chat_with_assistant(user_input, chat_history):
 # Create Gradio UI
 ui = gr.Interface(
     fn=chat_with_assistant,
-    inputs=[gr.Textbox(lines=2, placeholder="Ask about fitness..."), gr.State([])],
+    inputs=[gr.Textbox(lines=2, placeholder="Have an idea? Ask MuseMate for some help..."), gr.State([])],
     outputs=[gr.Chatbot(), gr.State()],
-    title="🏋️‍♀️ Sarah's Fitness Assistant",
-    description="Ask about workouts, health info, and more based on Sarah's (TruFit Movements) guide!"
+    title="MuseMate Creative Assitant!",
+    description="Ask about project ideas, organizing local events, and art!"
 )
 
-port = int(os.environ.get("PORT", 8080))
-ui.launch(server_name="0.0.0.0", server_port=port)
+
+ui.launch()
