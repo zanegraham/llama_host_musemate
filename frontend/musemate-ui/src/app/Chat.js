@@ -11,13 +11,17 @@ export default function Chat() {
 
     setChatLog([...chatLog, { role: "user", content: userInput }]);
 
+    const token = localStorage.getItem("token");
+
     const response = await fetch("http://localhost:8000/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ content: userInput }),
-    });
+      "Authorization": `Bearer ${token}`,
+  },
+  body: JSON.stringify({ content: userInput }),
+});
+
 
     const data = await response.json();
 
