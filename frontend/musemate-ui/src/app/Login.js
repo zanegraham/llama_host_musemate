@@ -38,7 +38,7 @@ export default function Login({ onAuthSuccess }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-white rounded-lg shadow">
+    <form onSubmit={handleSubmit} className="p-4 bg-black rounded-lg shadow">
       <h2 className="text-2xl mb-4">Login to MuseMate</h2>
       <input
         type="text"
