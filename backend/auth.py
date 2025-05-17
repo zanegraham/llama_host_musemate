@@ -1,37 +1,36 @@
-# backend/auth.py
-import jwt
-import time
 from passlib.hash import bcrypt
+from models import User
+import jwt
+import os
+import datetime
 
-SECRET_KEY = "super-secret-key"  # Change this in prod
+SECRET_KEY = os.getenv("SECRET_KEY", "super-secret-key")
 
-fake_users_db = {}
-
-def create_user(username: str, password: str):
-    if username in fake_users_db:
+def create_user(username: str, password: str, session):
+    if session.query(User).filter_by(username=username).first():
         return False
-    hashed_pw = bcrypt.hash(password)
-    fake_users_db[username] = {"password": hashed_pw}
+    user = User(username=username, password_hash=bcrypt.hash(password))
+    session.add(user)
+    session.commit()
     return True
 
-def authenticate_user(username: str, password: str):
-    user = fake_users_db.get(username)
-    if not user or not bcrypt.verify(password, user["password"]):
+def authenticate_user(username: str, password: str, session):
+    user = session.query(User).filter_by(username=username).first()
+    if not user or not bcrypt.verify(password, user.password_hash):
         return None
-    return generate_token(username)
+    return generate_token(username)  # Generate JWT token if authentication succeeds
 
 def generate_token(username: str):
     payload = {
-        "sub": username,
-        "iat": int(time.time()),
-        "exp": int(time.time()) + 3600,
+        "username": username,
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(days=1)
     }
     return jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
 def verify_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-        return payload["sub"]
+        return payload.get("username")
     except jwt.ExpiredSignatureError:
         return None
     except jwt.InvalidTokenError:

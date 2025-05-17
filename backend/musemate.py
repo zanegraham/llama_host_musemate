@@ -1,12 +1,15 @@
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 from auth import create_user, authenticate_user, verify_token
+from sqlmodel import SQLModel
+from db import engine, get_session
 from dotenv import load_dotenv
 import os
 
 load_dotenv()  # Load .env variables
+SQLModel.metadata.create_all(engine)
 
 app = FastAPI()
 
@@ -23,43 +26,39 @@ LLAMA_API_KEY = os.getenv("LLAMA_API_KEY")
 if not LLAMA_API_KEY:
     raise Exception("LLAMA_API_KEY not set in environment variables")
 
-# Memory per user (swap with DB later)
+# In-memory chat history per user (for now)
 conversation_histories = {}
-
-# -------------------------------
-# Auth System
-# -------------------------------
 
 class AuthData(BaseModel):
     username: str
     password: str
 
 @app.post("/signup")
-def signup(auth: AuthData):
-    success = create_user(auth.username, auth.password)
+def signup(auth: AuthData, session=Depends(get_session)):
+    success = create_user(auth.username, auth.password, session)
     if not success:
         raise HTTPException(status_code=400, detail="Username already exists")
     return {"message": "User created!"}
 
 @app.post("/login")
-def login(auth: AuthData):
-    token = authenticate_user(auth.username, auth.password)
+def login(auth: AuthData, session=Depends(get_session)):
+    token = authenticate_user(auth.username, auth.password, session)
     if not token:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"token": token}
 
-# -------------------------------
-# Chat Endpoint
-# -------------------------------
-
 class ChatRequest(BaseModel):
     content: str
+
+@app.get("/")
+def health_check():
+    return {"status": "ok"}
 
 @app.post("/chat")
 async def chat(request: Request, body: ChatRequest):
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Missing or invalid token")
+        raise HTTPException(status_code=401, detail="Missing token")
 
     token = auth_header.split(" ")[1]
     username = verify_token(token)
@@ -102,6 +101,7 @@ async def chat(request: Request, body: ChatRequest):
         raise HTTPException(status_code=500, detail="Llama API failed")
 
     data = llama_response.json()
+    print("Llama API raw response:", data)
     # Adjust this depending on actual Llama API response structure
     reply = data.get("completion_message", {}).get("content", {}).get("text")
     if not reply:
